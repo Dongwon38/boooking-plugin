@@ -78,9 +78,9 @@ Thank you.
         
         <p style="text-align: center; font-size: 14px; color: #666;">
           ${companyName} <br>
-          ${companyAddress} <br>
+          ${companyAddress} <a href="https://www.google.com/maps/search/?api=1&query=${companyAddress}" style="color: #007bff;">View on Google Maps</a><br>
           <strong>Business Hours:</strong> ${companyBusinessHour}
-          <p><strong>Find us:</strong> <a href="https://www.google.com/maps/search/?api=1&query=${companyAddress}" style="color: #007bff;">View on Google Maps</a></p>
+          
         </p>
       </div>
     `,
