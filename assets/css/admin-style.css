@@ -1,0 +1,75 @@
+/* 기본 스타일 */
+.booking-form {
+    font-family: Arial, sans-serif;
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: bold;
+    color: #4a4a4a; /* 텍스트 색상 */
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 50%;
+    padding: 0.75rem;
+    border: 1px solid #d1d1d1;
+    border-radius: 4px;
+    background-color: #f7f7f7;
+    font-size: 1rem;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #4f81ff;
+    box-shadow: 0 0 0 3px rgba(79, 129, 255, 0.2);
+}
+
+/* 상태별 색상 클래스 */
+.status-draft {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.status-booked {
+    background-color: #a2c2e5;
+    color: #234e88;
+}
+
+.status-completed {
+    background-color: #b7e0b3;
+    color: #2f6e2f;
+}
+
+.status-checked {
+    background-color: #fff4b3;
+    color: #c59f04;
+}
+
+.status-survey-sent {
+    background-color: #d1c6f3;
+    color: #3a1a83;
+}
+
+.status-canceled {
+    background-color: #f9b2b2;
+    color: #9e3b3b;
+}
+
+.status-no-show {
+    background-color: #d8b2ea;
+    color: #7a3fa1;
+}
+
+/* 상태별 클래스 적용 (예시) */
+.status-label {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-transform: capitalize;
+}
