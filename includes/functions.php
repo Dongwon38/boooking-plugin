@@ -407,6 +407,35 @@ function update_booking_status(WP_REST_Request $request) {
 }
 
 
+// send confirmation email to customer
+function send_booking_email() {
+    $data = json_decode(file_get_contents("php://input"), true);
+    
+    $to = sanitize_email($data['to']);
+    $subject = sanitize_text_field($data['subject']);
+    $body = wp_kses_post($data['body']); // ✅ HTML 보존하면서 필터링
+    $headers = array('Content-Type: text/html; charset=UTF-8'); // ✅ HTML 이메일 설정 추가
+
+    if (wp_mail($to, $subject, $body, $headers)) {
+        wp_send_json_success("Email sent successfully");
+    } else {
+        wp_send_json_error("Failed to send email");
+    }
+}
+
+// REST API 등록
+add_action('rest_api_init', function() {
+    register_rest_route('wp/v2', '/send-email', array(
+        'methods' => 'POST',
+        'callback' => 'send_booking_email',
+        'permission_callback' => '__return_true'
+    ));
+});
+
+
+
+
+
 
 
 // WP Theme - functions.php에 추가
