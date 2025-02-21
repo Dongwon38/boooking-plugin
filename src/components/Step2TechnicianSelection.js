@@ -16,25 +16,30 @@ export default function Step2TechnicianSelection({ selectedProgram, onSelect }) 
     technician.acf.related_program?.some(program => program.ID === selectedProgram.id)
   );
 
+  console.log("filteredTechnicians:", filteredTechnicians);
+
   return (
     <div>
       <h3 className="text-lg font-semibold">Select Technician</h3>
       <div className="grid grid-cols-2 gap-2">
-        <button
-          className="p-3 border rounded-lg text-center bg-gray-200"
-          onClick={() => onSelect("Anyone")}
-        >
-          No Preference
-        </button>
         {filteredTechnicians.length > 0 ? (
           filteredTechnicians.map((technician) => (
-            <button 
-              key={technician.id} 
-              className="p-3 border rounded-lg text-center bg-gray-200"
-              onClick={() => onSelect(technician)}
-            >
-              {technician.title.rendered}
-            </button>
+            <>
+              {technician.featured_image_url && (
+              <img
+                src={technician.featured_image_url}
+                alt={technician.title.rendered}
+                style={{ width: "300px", height: "auto" }}
+              />
+              )}
+              <button 
+                key={technician.id} 
+                className="p-3 border rounded-lg text-center bg-gray-200"
+                onClick={() => onSelect(technician)}
+                >
+                {technician.title.rendered}
+              </button>
+            </>
           ))
         ) : (
           <p className="text-gray-500 mt-2">No available technicians for this program.</p>

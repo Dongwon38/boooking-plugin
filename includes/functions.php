@@ -234,34 +234,6 @@ function ws_fill_booking_columns($column, $post_id) {
             }
             echo '</select>';
             break;
-
-            // $booking_status = get_post_meta($post_id, 'booking_status', true);           
-            // $status_class = '';
-            // switch ($booking_status) {
-            //     case 'draft':
-            //         $status_class = 'status-draft';
-            //         break;
-            //     case 'booked':
-            //         $status_class = 'status-booked';
-            //         break;
-            //     case 'completed':
-            //         $status_class = 'status-completed';
-            //         break;
-            //     case 'checked':
-            //         $status_class = 'status-checked';
-            //         break;
-            //     case 'survey_sent':
-            //         $status_class = 'status-survey-sent';
-            //         break;
-            //     case 'canceled':
-            //         $status_class = 'status-canceled';
-            //         break;
-            //     case 'no_show':
-            //         $status_class = 'status-no-show';
-            //         break;
-            // }
-            // echo '<span class="status-label ' . $status_class . '">' . ucfirst($booking_status) . '</span>';
-            // break;
     }
 }
 add_action('manage_booking_posts_custom_column', 'ws_fill_booking_columns', 10, 2);
@@ -307,11 +279,11 @@ function get_existing_bookings($request) {
     $args = array(
         'post_type'      => 'booking',
         'post_status'    => 'publish',
+        'numberposts' => -1,
         'meta_query'     => array(
             array(
                 'key'   => 'technician',
                 'value' => $technician,
-                'compare' => '='
             )
         )
     );
@@ -432,7 +404,26 @@ add_action('rest_api_init', function() {
     ));
 });
 
-
+// testing
+function add_featured_image_to_rest() {
+    register_rest_field(
+        'technician', // 너의 CPT 슬러그 (예: 'tour')
+        'featured_image_url',
+        array(
+            'get_callback'    => function ($post) {
+                $image_id = get_post_thumbnail_id($post['id']);
+                if ($image_id) {
+                    $image_url = wp_get_attachment_image_url($image_id, 'full');
+                    return $image_url;
+                }
+                return false;
+            },
+            'update_callback' => null,
+            'schema'          => null,
+        )
+    );
+}
+add_action('rest_api_init', 'add_featured_image_to_rest');
 
 
 

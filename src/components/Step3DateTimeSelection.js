@@ -19,7 +19,7 @@ export default function Step3DateTimeSelection({ selectedTechnician, selectedPro
   const programDuration = Number(selectedProgram?.duration) || 60;
   const bufferTime = 15;            // ===> 프로그램 종료 후 블록해야 하는 시간 (정리 시간)
   const minAdvanceBookingTime = 60; // ===> 현재 시각 기준 최소 예약 가능 시간 (ex. 60분 후부터 예약 가능)
-  const maxBookingDays = 30;        // ===> 오늘로부터 최대 예약 가능 일수
+  const maxBookingDays = 7;        // ===> 오늘로부터 최대 예약 가능 일수
   const closingTime = "17:00";      // ===> 마감 시간
   const totalBlockTime = programDuration + bufferTime;
 
@@ -62,7 +62,10 @@ export default function Step3DateTimeSelection({ selectedTechnician, selectedPro
 
   // 사용 가능한 날짜 생성
   useEffect(() => {
+    const dayOffs = selectedTechnician?.acf?.day_off_field?.map(({ day_off }) => day_off) || [];
+
     const today = new Date();
+
     const nextWeek = [...Array(maxBookingDays)].map((_, i) => {
       const date = new Date();
       date.setDate(today.getDate() + i);
@@ -73,8 +76,13 @@ export default function Step3DateTimeSelection({ selectedTechnician, selectedPro
     });
 
     const filteredDates = nextWeek
-      .filter(({ day }) => workDays.includes(day))
-      .map(({ date }) => ({
+      .filter(({ date, day }) => {
+        // 1️⃣ 해당 날짜가 Day Off인지 체크
+        if (dayOffs.includes(date)) return false;
+
+        // 2️⃣ 근무 요일인지 체크
+        return workDays.includes(day);
+      }).map(({ date }) => ({
         date,
         times: availableTimes.filter((time) => isTimeAvailable(date, time)),
       }));
