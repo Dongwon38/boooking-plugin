@@ -1,31 +1,11 @@
 // Step4CustomerInfo.js
 
-import { useState } from "react";
-
-export default function CustomerInfo({ onBack, onConfirm, onClick }) {
-  const [customer, setCustomer] = useState({
-    name: "",
-    phone: "",
-    email: "",
-  });
+export default function CustomerInfo({ handleKeyDown, customerInfo, setCustomerInfo }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCustomer((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = () => {
-    if (customer.name && customer.phone && customer.email) {
-      onConfirm(customer);
-    } else {
-      alert("Please fill in all fields.");
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      handleSubmit();
-    }
+    setCustomerInfo((prev) => ({ ...prev, [name]: value }));
+    console.log(customerInfo);
   };
 
   return (
@@ -36,7 +16,7 @@ export default function CustomerInfo({ onBack, onConfirm, onClick }) {
           type="text"
           name="name"
           placeholder="Full Name"
-          value={customer.name}
+          value={customerInfo.name}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           className="w-full p-2 border rounded"
@@ -45,7 +25,7 @@ export default function CustomerInfo({ onBack, onConfirm, onClick }) {
           type="tel"
           name="phone"
           placeholder="Phone Number"
-          value={customer.phone}
+          value={customerInfo.phone}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           className="w-full p-2 border rounded"
@@ -54,14 +34,11 @@ export default function CustomerInfo({ onBack, onConfirm, onClick }) {
           type="email"
           name="email"
           placeholder="Email Address"
-          value={customer.email}
+          value={customerInfo.email}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           className="w-full p-2 border rounded"
         />
-      </div>
-      <div className="mt-4 flex justify-between">
-        <button onClick={handleSubmit} className="bg-blue-500 text-white px-4 py-2 rounded">Submit</button>
       </div>
     </div>
   );

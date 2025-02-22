@@ -1,4 +1,5 @@
 // BookingModal.js
+
 import { useState } from "react";
 import ProgramSelection from "./Step1ProgramSelection";
 import TechnicianSelection from "./Step2TechnicianSelection";
@@ -7,40 +8,57 @@ import CustomerInfo from "./Step4CustomerInfo";
 import Review from "./Step5Review";
 import { sendBookingEmail } from "./Step6SendEmail";
 
-
 export default function BookingModal({ isOpen, onClose }) {
   const [step, setStep] = useState(1);
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
   const [selectedDateTime, setSelectedDateTime] = useState(null);
   const [customerInfo, setCustomerInfo] = useState({ name: "", phone: "", email: "" });
-  const [isConfirmed, setIsConfirmed] = useState(false); // 예약 완료 여부
+  const [tempProgram, setTempProgram] = useState(null);
+  const [tempTechnician, setTempTechnician] = useState(null);
+  const [tempDateTime, setTempDateTime] = useState(null);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
-  const handleNext = () => setStep((prev) => prev + 1);
+  const handleNext = () => {
+    if (step === 1) setSelectedProgram(tempProgram);
+    if (step === 2) setSelectedTechnician(tempTechnician);
+    if (step === 3) setSelectedDateTime(tempDateTime);
+    if (step === 4) {
+      if (customerInfo.name && customerInfo.phone && customerInfo.email) {
+        handleCustomerInfoSubmit(customerInfo)
+      } else {
+        alert("Please fill in all fields.");
+      }
+    }
+    setStep((prev) => prev + 1);
+  }
+  
+  const handleKeyDown = (e) => {
+    if (step === 4 && e.key === "Enter") {
+      handleNext();
+    }
+  };
+  
   const handlePrev = () => setStep((prev) => Math.max(prev - 1, 1));
 
   const handleProgramSelect = (program) => {
-    setSelectedProgram(program);
-    console.log("program:", program);
-    handleNext();
+    setTempProgram(program);
+    console.log("Selected program:", program);
   };
 
   const handleTechnicianSelect = (technician) => {
-    setSelectedTechnician(technician);
-    console.log("technician:", technician);
-    handleNext();
+    setTempTechnician(technician);
+    console.log("Selected technician:", technician);
   };
 
   const handleDateTimeSelect = (dateTime) => {
-    setSelectedDateTime(dateTime);
-    console.log("dateTime:", dateTime);
-    handleNext();
+    setTempDateTime(dateTime);
+    console.log("Selected date/time:", dateTime);
   };
 
   const handleCustomerInfoSubmit = (customer) => {
     setCustomerInfo(customer);
-    console.log("customer:", customer);
-    handleNext();
+    console.log("Customer info (Main):", customer);
   };
 
   // 예약 정보 저장 ================================================================= //
@@ -101,8 +119,8 @@ export default function BookingModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg w-96 relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-lg w-96 relative z-50">
         {/* 닫기 버튼 */}
         <button onClick={onClose} className="absolute top-2 right-2 text-xl">&times;</button>
 
@@ -131,7 +149,7 @@ export default function BookingModal({ isOpen, onClose }) {
             {step === 1 && <ProgramSelection onSelect={handleProgramSelect} />}
             {step === 2 && <TechnicianSelection selectedProgram={selectedProgram} onSelect={handleTechnicianSelect} />}
             {step === 3 && <DateTimeSelection selectedTechnician={selectedTechnician} selectedProgram={selectedProgram} onSelect={handleDateTimeSelect} />}
-            {step === 4 && <CustomerInfo onConfirm={handleCustomerInfoSubmit} />}
+            {step === 4 && <CustomerInfo customerInfo={customerInfo} setCustomerInfo={setCustomerInfo} handleKeyDown={handleKeyDown} />}
             {step === 5 && (
               <Review 
                 selectedProgram={selectedProgram}
@@ -147,7 +165,30 @@ export default function BookingModal({ isOpen, onClose }) {
         {/* 단계 이동 버튼 */}
         {!isConfirmed && (
           <div className="mt-4 flex justify-between">
-            {step > 1 && <button onClick={handlePrev} className="text-blue-500">Back</button>}
+            <button className="text-blue-500" onClick={handlePrev} disabled={step === 1}>Back</button>
+            {step < 5 ? (
+              <button
+                onClick={handleNext}
+                className={`px-4 py-2 rounded ${
+                  (step === 1 && !tempProgram) ||
+                  (step === 2 && !tempTechnician) ||
+                  (step === 3 && !tempDateTime) ||
+                  (step === 4 && !customerInfo) ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 text-white"
+                }`}
+                disabled={
+                  (step === 1 && !tempProgram) ||
+                  (step === 2 && !tempTechnician) ||
+                  (step === 3 && !tempDateTime) ||
+                  (step === 4 && !customerInfo) 
+                }
+              >
+                Next
+              </button>
+            ) : (
+              <button onClick={handleConfirmBooking} className="bg-green-500 text-white px-4 py-2 rounded">
+                Confirm Booking
+              </button>
+            )}
           </div>
         )}
       </div>
