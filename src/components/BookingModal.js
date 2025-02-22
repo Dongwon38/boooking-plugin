@@ -147,7 +147,7 @@ export default function BookingModal({ isOpen, onClose }) {
           <>
             {/* 단계별 UI */}
             {step === 1 && <ProgramSelection onSelect={handleProgramSelect} />}
-            {step === 2 && <TechnicianSelection selectedProgram={selectedProgram} onSelect={handleTechnicianSelect} />}
+            {step === 2 && <TechnicianSelection tempTechnician={tempTechnician} selectedProgram={selectedProgram} onSelect={handleTechnicianSelect} />}
             {step === 3 && <DateTimeSelection selectedTechnician={selectedTechnician} selectedProgram={selectedProgram} onSelect={handleDateTimeSelect} />}
             {step === 4 && <CustomerInfo customerInfo={customerInfo} setCustomerInfo={setCustomerInfo} handleKeyDown={handleKeyDown} />}
             {step === 5 && (

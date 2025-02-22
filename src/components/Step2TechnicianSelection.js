@@ -2,12 +2,8 @@
 
 import useFetch from "../hooks/useFetch";
 
-export default function Step2TechnicianSelection({ selectedProgram, onSelect }) {
+export default function Step2TechnicianSelection({ tempTechnician, selectedProgram, onSelect }) {
   const { data: technicians, loading: techniciansLoading } = useFetch("technician");
-
-  if (!selectedProgram) {
-      return <p className="text-red-500">Please select a program first.</p>;
-  }
 
   if (techniciansLoading) return <p>Loading...</p>;
 
@@ -15,7 +11,7 @@ export default function Step2TechnicianSelection({ selectedProgram, onSelect }) 
   const filteredTechnicians = technicians?.filter(technician => 
     technician.acf.related_program?.some(program => program.ID === selectedProgram.id)
   );
-
+  
   console.log("filteredTechnicians:", filteredTechnicians);
 
   return (
@@ -24,22 +20,24 @@ export default function Step2TechnicianSelection({ selectedProgram, onSelect }) 
       <div className="grid grid-cols-2 gap-2">
         {filteredTechnicians.length > 0 ? (
           filteredTechnicians.map((technician) => (
-            <>
+            <div
+            key={technician.id}
+            className={`flex flex-col items-center p-4 border rounded-lg cursor-pointer transition-all
+              ${tempTechnician?.id === technician.id ? "border-blue-500 bg-blue-100" : "border-gray-300 bg-white hover:bg-gray-100"}
+            `}
+            onClick={() => onSelect(technician)}
+            >
               {technician.featured_image_url && (
-              <img
-                src={technician.featured_image_url}
-                alt={technician.title.rendered}
-                style={{ width: "300px", height: "auto" }}
-              />
+                <img
+                  src={technician.featured_image_url}
+                  alt={technician.title.rendered}
+                  className="w-16 h-16 rounded-full mb-3 border"
+                />
               )}
-              <button 
-                key={technician.id} 
-                className="p-3 border rounded-lg text-center bg-gray-200"
-                onClick={() => onSelect(technician)}
-                >
-                {technician.title.rendered}
-              </button>
-            </>
+              <p className="text-base font-semibold">{technician.title.rendered}</p>
+              <p className="text-sm text-gray-500">{technician.acf.position || "Position"}</p>
+              <p className="text-xs text-gray-400 text-center">{technician.acf.comments || "No comments"}</p>
+            </div>
           ))
         ) : (
           <p className="text-gray-500 mt-2">No available technicians for this program.</p>
