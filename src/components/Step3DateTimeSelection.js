@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function Step3DateTimeSelection({ selectedTechnician, selectedProgram, onSelect }) {
+export default function Step3DateTimeSelection({ tempDateTime, setTempDateTime, selectedTechnician, selectedProgram, onSelect }) {
   const [availableDates, setAvailableDates] = useState([]);
   const [bookedSlots, setBookedSlots] = useState([]);
   const workDays = selectedTechnician?.acf?.work_days || [];
@@ -90,28 +90,46 @@ export default function Step3DateTimeSelection({ selectedTechnician, selectedPro
   }, [bookedSlots]);
 
   return (
-    <div>
-      <h3 className="text-lg font-semibold">Select Date & Time</h3>
-      {availableDates.map(({ date, times }) => (
-        <div key={date} className="mb-4">
-          <p className="font-bold">{date}</p>
-          <div className="grid grid-cols-4 gap-2">
-            {times.length > 0 ? (
-              times.map((time) => (
-                <button
-                  key={time}
-                  onClick={() => onSelect({ date, time })}
-                  className="p-2 border rounded bg-gray-200 hover:bg-gray-300"
-                >
-                  {time}
-                </button>
-              ))
-            ) : (
-              <p className="text-gray-500">No available slots</p>
-            )}
-          </div>
-        </div>
-      ))}
+    <div className="w-full p-4 flex flex-col items-center">
+      <div className="w-full overflow-x-auto whitespace-nowrap flex-nowrap flex space-x-3 py-2 px-2">
+        {availableDates.map(({ date }) => {
+          const dateObj = new Date(date);
+          const dayLabel = dateObj.toLocaleDateString("en-US", { weekday: "short" });
+
+          return (
+            <button
+              key={date}
+              onClick={() => onSelect({ date, time: "" })}
+              className={`flex flex-col items-center w-16 h-16 rounded-full text-lg font-bold transition relative
+                ${tempDateTime?.date === date ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}
+            >
+              <span className="text-xl">{date.slice(-2)}</span>
+              <span className="absolute bottom-[-15px] text-sm text-gray-600">{dayLabel}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="w-full max-h-[300px] min-h-[150px] overflow-y-auto flex flex-col items-center space-y-2 p-2">
+        {tempDateTime?.date ? (
+          availableDates.find(({ date }) => date === tempDateTime.date)?.times.length > 0 ? (
+            availableDates.find(({ date }) => date === tempDateTime.date)?.times.map((time) => (
+              <button
+                key={time}
+                onClick={() => onSelect({ date: tempDateTime.date, time })}
+                className="w-32 py-2 text-sm font-medium bg-gray-100 hover:bg-blue-500 hover:text-white transition"
+              >
+                {time}
+              </button>
+            ))
+          ) : (
+            <p className="text-gray-500 w-32 py-2 text-center bg-gray-100">No available slots</p>
+          )
+        ) : (
+          <p className="text-gray-500 w-32 py-2 text-center bg-gray-100">Select a date first</p>
+        )}
+      </div>
     </div>
   );
 }
+
