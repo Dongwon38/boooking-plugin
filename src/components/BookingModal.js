@@ -133,7 +133,7 @@ export default function BookingModal({ isOpen, onClose }) {
       onClick={handleClose} // 바깥 클릭 시 닫힘
     >
       <div
-        className="bg-white grid grid-rows-[60px_1fr_54px] p-6 md:rounded-lg w-full h-full md:max-h-lg relative z-50 transition-transform transform scale-100 md:max-w-lg lg:max-w-xl"
+        className="bg-white grid grid-rows-[60px_1fr_54px] p-6 md:rounded-lg w-full h-full md:h-[90%] relative z-50 transition-transform transform scale-100 md:max-w-lg lg:max-w-xl "
         onClick={(e) => e.stopPropagation()} // 내부 클릭 시 닫히지 않도록 설정
       >
         {/* 닫기 버튼 */}

@@ -135,7 +135,7 @@ export default function Step3DateTimeSelection({ tempDateTime, setTempDateTime, 
       {!showCalendar && (
         <div className="mt-4">
           <h3 className="font-semibold mb-2">Available Times on {selectedDate}:</h3>
-          <ul className="space-y-2">
+          <ul className="flex flex-col space-y-2">
             {selectedDate ? (
               availableDates.find(({ date }) => date === selectedDate)?.times.length > 0 ? (
                 availableDates.find(({ date }) => date === selectedDate)?.times.map((time) => (
