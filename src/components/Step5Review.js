@@ -24,7 +24,7 @@ export default function Step5Review({ selectedProgram, selectedTechnician, selec
                 <p>Email: {customerInfo.email}</p>
             </div>
             {/* 예약 확정 버튼 */}
-            <button onClick={onConfirm} className="bg-green-500 text-white px-4 py-2 rounded mt-4">Confirm Booking</button>
+            {/* <button onClick={onConfirm} className="bg-green-500 text-white px-4 py-2 rounded mt-4">Confirm Booking</button> */}
         </div>
     );
 }

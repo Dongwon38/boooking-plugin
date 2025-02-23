@@ -1,3 +1,5 @@
+// /src/hooks/useFetch.js
+
 import { useState, useEffect } from "react";
 
 const API_BASE = window.wsBookingData?.restUrl || "/wp-json/wp/v2/";

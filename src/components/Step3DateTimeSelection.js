@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 
-export default function Step3DateTimeSelection({ selectedTechnician, selectedProgram, onSelect }) {
+export default function Step3DateTimeSelection({ tempDateTime, setTempDateTime, selectedTechnician, selectedProgram, onSelect }) {
+  const [showCalendar, setShowCalendar] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [availableDates, setAvailableDates] = useState([]);
   const [bookedSlots, setBookedSlots] = useState([]);
   const workDays = selectedTechnician?.acf?.work_days || [];
@@ -62,7 +64,11 @@ export default function Step3DateTimeSelection({ selectedTechnician, selectedPro
 
   // 사용 가능한 날짜 생성
   useEffect(() => {
+    const dayOffs = selectedTechnician?.acf?.day_off_field?.map(({ day_off }) => day_off) || [];
+
     const today = new Date();
+    console.log("today:", today);
+
     const nextWeek = [...Array(maxBookingDays)].map((_, i) => {
       const date = new Date();
       date.setDate(today.getDate() + i);
@@ -71,39 +77,118 @@ export default function Step3DateTimeSelection({ selectedTechnician, selectedPro
         day: date.toLocaleDateString("en-US", { weekday: "short" }).toLowerCase(),
       };
     });
+    console.log("nextWeek:", nextWeek);
 
     const filteredDates = nextWeek
-      .filter(({ day }) => workDays.includes(day))
-      .map(({ date }) => ({
+      .filter(({ date, day }) => {
+        // 1️⃣ 해당 날짜가 Day Off인지 체크
+        if (dayOffs.includes(date)) return false;
+
+        // 2️⃣ 근무 요일인지 체크
+        return workDays.includes(day);
+      }).map(({ date }) => ({
         date,
         times: availableTimes.filter((time) => isTimeAvailable(date, time)),
       }));
     setAvailableDates(filteredDates);
   }, [bookedSlots]);
 
+    // 현재 월과 다음 월 가져오기
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0 (Jan) ~ 11 (Dec)
+    const nextMonth = (currentMonth + 1) % 12;
+    const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+
+    // 날짜 선택 시 실행
+    const handleDateSelect = (date) => {
+      setSelectedDate(date);
+      setShowCalendar(false); // 달력 숨기기
+    };
+
+    // 선택된 날짜 클릭 시 다시 달력 표시
+    const handleDateClick = () => {
+      setShowCalendar(true);
+    };
+
+
   return (
-    <div>
-      <h3 className="text-lg font-semibold">Select Date & Time</h3>
-      {availableDates.map(({ date, times }) => (
-        <div key={date} className="mb-4">
-          <p className="font-bold">{date}</p>
-          <div className="grid grid-cols-4 gap-2">
-            {times.length > 0 ? (
-              times.map((time) => (
-                <button
-                  key={time}
-                  onClick={() => onSelect({ date, time })}
-                  className="p-2 border rounded bg-gray-200 hover:bg-gray-300"
-                >
-                  {time}
-                </button>
-              ))
-            ) : (
-              <p className="text-gray-500">No available slots</p>
-            )}
-          </div>
+    <div className="w-full p-4 flex flex-col items-center overflow-y-scroll">
+      {/* 날짜 선택된 상태 */}
+      {!showCalendar && selectedDate && (
+        <div className="mb-4">
+          <button onClick={() => setShowCalendar(true)} className="text-lg font-semibold underline text-blue-500">
+            {selectedDate} 📅
+          </button>
         </div>
-      ))}
+      )}
+
+      {/* 달력 표시 */}
+        {showCalendar && (
+        <div className="grid grid-rows-2 gap-4 w-full">
+          <Calendar month={currentMonth} year={currentYear} availableDates={availableDates} onSelect={handleDateSelect} />
+          <Calendar month={nextMonth} year={nextYear} availableDates={availableDates} onSelect={handleDateSelect} />
+      </div>
+      )}
+      
+      {/* 시간 선택 (달력이 숨겨져 있을 때만 표시) */}
+      {!showCalendar && (
+        <div className="mt-4">
+          <h3 className="font-semibold mb-2">Available Times on {selectedDate}:</h3>
+          <ul className="space-y-2">
+            {selectedDate ? (
+              availableDates.find(({ date }) => date === selectedDate)?.times.length > 0 ? (
+                availableDates.find(({ date }) => date === selectedDate)?.times.map((time) => (
+                  <button
+                    key={time}
+                    onClick={() => onSelect({ date: selectedDate, time })}
+                    className="w-32 py-2 text-sm font-medium bg-gray-100 hover:bg-blue-500 hover:text-white transition"
+                  >
+                    {time}
+                  </button>
+                ))
+              ) : (
+                <p className="text-gray-500 w-32 py-2 text-center bg-gray-100">No available slots</p>
+              )
+            ) : (
+              <p className="text-gray-500 w-32 py-2 text-center bg-gray-100">Select a date first</p>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 단순한 캘린더 컴포넌트 (날짜 선택 기능)
+function Calendar({ month, year, availableDates, onSelect }) {
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay();
+
+  return (
+    <div className="border rounded p-2 min-h-270 bg-white shadow">
+      <h4 className="text-lg font-semibold mb-2">{new Date(year, month).toLocaleString("default", { month: "long", year: "numeric" })}</h4>
+      <div className="grid grid-cols-7 gap-1 text-center">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+          <div key={day} className="font-bold">{day}</div>
+        ))}
+        {Array.from({ length: firstDay }).map((_, i) => <div key={i}></div>)}
+        {Array.from({ length: daysInMonth }).map((_, day) => {
+          const date = `${year}-${String(month + 1).padStart(2, "0")}-${String(day + 1).padStart(2, "0")}`;
+          const availableDate = availableDates.find((d) => d.date === date);
+          const isUnavailable = !availableDate || availableDate.times.length === 0;
+
+          return (
+            <button
+              key={date}
+              className={`p-1 rounded ${isUnavailable ? "bg-gray-500 text-gray-300 line-through cursor-not-allowed" : "bg-white hover:bg-blue-300"}`}
+              onClick={() => !isUnavailable && onSelect(date)}
+            >
+              {day + 1}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
