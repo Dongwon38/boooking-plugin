@@ -102,7 +102,7 @@ export default function Step3DateTimeSelection({ tempDateTime, setTempDateTime, 
 
     // 날짜 선택 시 실행
     const handleDateSelect = (date) => {
-      setSelectedDate(date);
+      setTempDateTime({ date, time: "" });
       setShowCalendar(false); // 달력 숨기기
     };
 
@@ -115,10 +115,10 @@ export default function Step3DateTimeSelection({ tempDateTime, setTempDateTime, 
   return (
     <div className="w-full p-4 flex flex-col items-center overflow-y-scroll">
       {/* 날짜 선택된 상태 */}
-      {!showCalendar && selectedDate && (
+      {!showCalendar && tempDateTime.date && (
         <div className="mb-4">
           <button onClick={() => setShowCalendar(true)} className="text-lg font-semibold underline text-blue-500">
-            {selectedDate} 📅
+            {tempDateTime.date} 📅
           </button>
         </div>
       )}
@@ -134,14 +134,14 @@ export default function Step3DateTimeSelection({ tempDateTime, setTempDateTime, 
       {/* 시간 선택 (달력이 숨겨져 있을 때만 표시) */}
       {!showCalendar && (
         <div className="mt-4">
-          <h3 className="font-semibold mb-2">Available Times on {selectedDate}:</h3>
+          <h3 className="font-semibold mb-2">Available Times on {tempDateTime.date}:</h3>
           <ul className="flex flex-col space-y-2">
-            {selectedDate ? (
-              availableDates.find(({ date }) => date === selectedDate)?.times.length > 0 ? (
-                availableDates.find(({ date }) => date === selectedDate)?.times.map((time) => (
+            {tempDateTime.date ? (
+              availableDates.find(({ date }) => date === tempDateTime.date)?.times.length > 0 ? (
+                availableDates.find(({ date }) => date === tempDateTime.date)?.times.map((time) => (
                   <button
                     key={time}
-                    onClick={() => onSelect({ date: selectedDate, time })}
+                    onClick={() => onSelect({ date: tempDateTime.date, time })}
                     className="w-32 py-2 text-sm font-medium bg-gray-100 hover:bg-blue-500 hover:text-white transition"
                   >
                     {time}

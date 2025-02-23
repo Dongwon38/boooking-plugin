@@ -141,9 +141,18 @@ export default function BookingModal({ isOpen, onClose }) {
 
         {/* 진행 단계 표시 */}
         <div className="mb-4 flex justify-between text-sm font-bold">
-          <span className={step >= 1 ? "text-blue-500" : "text-gray-400"}>Program</span>
-          <span className={step >= 2 ? "text-blue-500" : "text-gray-400"}>By</span>
-          <span className={step >= 3 ? "text-blue-500" : "text-gray-400"}>Date/Time</span>
+          <div className="flex flex-col justify-center">
+            <span className={step >= 1 ? "text-blue-500" : "text-gray-400"}>Program</span>
+            <span>{tempProgram?.name} {tempProgram?.duration}</span>
+          </div>
+          <div className="flex flex-col justify-center">
+            <span className={step >= 2 ? "text-blue-500" : "text-gray-400"}>By</span>
+            <span>{tempTechnician?.title.rendered}</span>
+          </div>
+          <div className="flex flex-col justify-center">
+            <span className={step >= 3 ? "text-blue-500" : "text-gray-400"}>Date/Time</span>
+            <span>{tempDateTime?.date} {tempDateTime?.time}</span>
+          </div>
           <span className={step >= 4 ? "text-blue-500" : "text-gray-400"}>Info</span>
           <span className={step >= 5 ? "text-blue-500" : "text-gray-400"}>Review</span>
         </div>
