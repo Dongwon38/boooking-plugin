@@ -3,3 +3,5 @@ node_modules
 build
 
 Archive.zip
+
+.DS_Store
