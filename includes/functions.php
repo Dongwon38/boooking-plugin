@@ -446,3 +446,96 @@ add_action('rest_api_init', 'add_featured_image_to_rest');
 //     ]);
 // }
 // add_action('rest_api_init', 'ws_add_acf_to_program_api');
+
+
+// =============================================
+// TESTING - payment
+
+// functions.php
+
+add_action('rest_api_init', function () {
+    register_rest_route('wc/v3', '/cart/sync', array(
+        'methods' => 'POST',
+        'callback' => 'sync_cart_data',
+        'permission_callback' => function () {
+            // 개발용으로 임시 허용 (실제 배포 시 인증 추가 필요)
+            return true;
+        },
+    ));
+});
+
+function sync_cart_data($request) {
+    // 로깅 시작
+    error_log('sync_cart_data 호출됨');
+
+    // WooCommerce 활성화 확인
+    if (!function_exists('WC')) {
+        error_log('WooCommerce가 활성화되지 않음');
+        return new WP_Error('no_woocommerce', 'WooCommerce가 활성화되지 않았습니다.', array('status' => 500));
+    }
+
+    // WooCommerce 초기화
+    if (!WC()->initialized()) {
+        WC()->init();
+        error_log('WooCommerce 초기화 완료');
+    }
+
+    // 세션 핸들러 설정
+    if (!WC()->session) {
+        WC()->session = new WC_Session_Handler();
+        WC()->session->init();
+        error_log('세션 초기화됨');
+    }
+
+    // 카트 초기화 확인
+    if (!WC()->cart) {
+        WC()->cart = new WC_Cart();
+        error_log('카트 객체 생성됨');
+    }
+
+    // 기존 카트 비우기
+    WC()->cart->empty_cart();
+    error_log('기존 카트 비워짐');
+
+    // 요청 데이터 가져오기
+    $items = $request->get_param('items');
+    if (!is_array($items) || empty($items)) {
+        error_log('잘못된 카트 데이터: ' . print_r($items, true));
+        return new WP_Error('invalid_data', '잘못된 카트 데이터입니다.', array('status' => 400));
+    }
+
+    // 카트에 아이템 추가
+    foreach ($items as $item) {
+        $product_id = absint($item['id']);
+        $quantity = absint($item['quantity']);
+        error_log("제품 추가 시도 - ID: $product_id, 수량: $quantity");
+
+        if ($product_id && $quantity) {
+            $added = WC()->cart->add_to_cart($product_id, $quantity);
+            if (!$added) {
+                error_log("제품 추가 실패 - ID: $product_id");
+            } else {
+                error_log("제품 추가 성공 - ID: $product_id");
+            }
+        }
+    }
+
+    // 카트 세션 저장
+    WC()->session->set_cart(WC()->cart->get_cart());
+    error_log('카트 세션 저장됨');
+
+    return new WP_REST_Response(array(
+        'success' => true,
+        'message' => '카트가 동기화되었습니다.',
+        'cart' => WC()->cart->get_cart() // 디버깅용으로 현재 카트 내용 반환
+    ), 200);
+}
+
+// CORS 설정 (REST API 호출 전에 적용되도록 필터 추가)
+add_filter('rest_pre_serve_request', function ($value) {
+    header('Access-Control-Allow-Origin: *'); // 개발용으로 '*' 사용, 배포 시 React 도메인으로 제한
+    header('Access-Control-Allow-Credentials: true');
+    header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
+    return $value;
+}, 10, 1);

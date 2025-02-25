@@ -1,10 +1,11 @@
 <?php
 /**
- * Plugin Name: WS Simple Booking
+ * Plugin Name: WS test payment
  * Description: simple booking plugin
  * Version: 1.0
  * Author: Your Name
  */
+
 
 if (!defined('ABSPATH')) {
     exit; // 보안 상의 이유로 직접 접근 방지
